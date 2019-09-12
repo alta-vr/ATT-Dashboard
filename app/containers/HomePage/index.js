@@ -9,10 +9,16 @@ import React from 'react';
 import { FormattedMessage } from 'react-intl';
 import messages from './messages';
 
-export default function HomePage() {
+import { Grid, Menu, Segment, Container, Divider, Header } from 'semantic-ui-react'
+import Navigation from '../Navigation';
+
+export default function HomePage() 
+{
   return (
-    <h1>
-      <FormattedMessage {...messages.header} />
-    </h1>
+    <Container>
+      <Header>ATT Console</Header>
+      <Divider/>
+      <Navigation/>
+    </Container>
   );
 }

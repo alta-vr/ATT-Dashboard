@@ -20,6 +20,15 @@ module.exports = options => ({
   module: {
     rules: [
       {
+        test: /\.tsx?$/, // Transform all .ts and .tsx files required somewhere with Babel
+        exclude: /node_modules/,
+        use: [{
+          loader: 'babel-loader',
+          options: options.babelQuery,
+        },
+        'ts-loader']
+      },
+      {
         test: /\.jsx?$/, // Transform all .js and .jsx files required somewhere with Babel
         exclude: /node_modules/,
         use: {
@@ -117,10 +126,15 @@ module.exports = options => ({
   ]),
   resolve: {
     modules: ['node_modules', 'app'],
-    extensions: ['.js', '.jsx', '.react.js'],
+    extensions: ['.js', '.jsx', '.react.js', '.ts'],
     mainFields: ['browser', 'jsnext:main', 'main'],
   },
   devtool: options.devtool,
   target: 'web', // Make web variables accessible to webpack, e.g. window
   performance: options.performance || {},
+  node: {
+    fs: 'empty',
+    net: 'empty',
+    tls: 'empty'
+  }
 });

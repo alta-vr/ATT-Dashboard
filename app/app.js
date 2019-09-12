@@ -34,7 +34,7 @@ import configureStore from './configureStore';
 import { translationMessages } from './i18n';
 
 // Create redux store with history
-const initialState = {};
+const initialState = { };
 const store = configureStore(initialState, history);
 const MOUNT_NODE = document.getElementById('app');
 
