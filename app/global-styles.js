@@ -25,7 +25,7 @@ const GlobalStyle = createGlobalStyle`
 
   #app>div
   {
-    width: 80%;
+    width: 90%;
   }
 
   /* p,

@@ -49,7 +49,7 @@
     "> 1%",
     "IE 10"
   ],
-  "lint-staged": {
+  "NOlint-staged": {
     "*.js": [
       "npm run lint:eslint:fix",
       "git add --force"
@@ -59,13 +59,13 @@
       "git add --force"
     ]
   },
-  "pre-commit": "lint:staged",
+  "NOpre-commit": "lint:staged",
   "resolutions": {
     "babel-core": "7.0.0-bridge.0"
   },
   "dependencies": {
     "@babel/polyfill": "7.4.3",
-    "alta-installer": "file:D:\\Projects\\Plastic\\Alta Launcher\\Launcher\\Launcher\\src\\jsapi",
+    "alta-installer": "file:C:\\Projects\\Plastic\\Alta Launcher JSAPI\\Launcher\\Launcher\\src\\jsapi",
     "chalk": "^2.4.2",
     "chrome-net": "^3.3.3",
     "compression": "1.7.4",
@@ -150,7 +150,6 @@
     "null-loader": "0.1.1",
     "offline-plugin": "5.0.6",
     "plop": "2.3.0",
-    "pre-commit": "1.2.2",
     "prettier": "1.17.0",
     "react-app-polyfill": "0.2.2",
     "react-test-renderer": "16.8.6",
