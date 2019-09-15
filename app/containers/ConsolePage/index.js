@@ -5,6 +5,7 @@
  */
 
 import React from 'react';
+import styled from 'styled-components';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { FormattedMessage } from 'react-intl';
@@ -30,8 +31,23 @@ import {
   Image,
   Divider,
   Checkbox,
+  Dropdown,
+  Sidebar,
+  Accordion,
+  Header,
 } from 'semantic-ui-react';
 import { consoles } from '../../jsapi/remoteConsoles';
+
+const allLogs = [
+  'TraceLog',
+  'DebugLog',
+  'InfoLog',
+  'WarnLog',
+  'ErrorLog',
+  'FatalLog',
+];
+
+const allLogs2 = [...allLogs, 'OffLog'];
 
 export function ConsolePage({
   id,
@@ -39,17 +55,86 @@ export function ConsolePage({
   remoteConsole,
   subscribe,
   unsubscribe,
+  clear,
+  send
 }) {
   RemoteConsoles.inject();
 
   const [newSubscribe, setSubscribe] = React.useState('');
+  const [selected, setSelected] = React.useState(undefined);
+  const [eventSearch, setEventSearch] = React.useState('');
   const [command, setCommand] = React.useState('');
-  const [column, setColumn] = React.useState('date');
-  const [direction, setDirection] = React.useState('ascending');
+  const [commandIndex, setCommandIndex] = React.useState(-1);
+  const commandRef = React.useRef();
+  
+  function downHandler(e) 
+  {
+      e = e || window.event;
+  
+      if (e.keyCode == '27')
+      {
+        setCommandIndex(-1);
+        setCommand("");
+      }
+      else if (e.keyCode == '38') 
+      {
+        // up arrow
+        if (commandIndex < 0)
+        {
+          var index = remoteConsole.sent.length - 1;
+          setCommandIndex(index);
 
-  function send(type, eventType, content) {
-    consoles[id].send(JSON.stringify({ type, eventType, content }));
+          if (index >= 0)
+          {
+            setCommand(remoteConsole.sent[index]);
+          }
+          else
+          {
+            setCommand("");
+          }
+        }
+        else if (commandIndex >= 0)
+        {
+          var index = commandIndex - 1;
+          setCommandIndex(index);
+
+          if (index >= 0)
+          {
+            setCommand(remoteConsole.sent[index]);
+          }
+          else
+          {
+            setCommand("");
+          }
+        }
+      }
+      else if (e.keyCode == '40' && commandIndex > -1) 
+      {
+        // down arrow
+          var index = commandIndex + 1;
+
+          if (index < remoteConsole.sent.length)
+          {
+            setCommandIndex(index);
+            setCommand(remoteConsole.sent[index]);
+          }
+          else
+          {
+            setCommandIndex(-1);
+            setCommand("");
+          }
+      }
   }
+
+  React.useEffect(() =>
+  {
+    window.addEventListener('keydown', downHandler);
+
+    return () =>
+    {
+      window.removeEventListener('keydown', downHandler);
+    }
+  });
 
   const logToggle = (label, events) => {
     const isEnabled = events.every(event =>
@@ -71,138 +156,165 @@ export function ConsolePage({
       </Menu.Item>
     );
   };
+  
+  const logToggleDropdown = (label, events) => {
+    const isEnabled = events.every(event =>
+      remoteConsole.subscriptions.includes(event),
+    );
 
-  const handleSort = clickedColumn => () => {
-    if (column !== clickedColumn) {
-      setColumn(clickedColumn);
-      setDirection('ascending');
-      return;
-    }
-
-    setDirection(direction === 'ascending' ? 'descending' : 'ascending');
+    return (
+      <Dropdown.Item>
+        <Checkbox
+          toggle
+          label={label}
+          checked={isEnabled}
+          onChange={() =>
+            events.forEach(event =>
+              isEnabled ? unsubscribe(id, event) : subscribe(id, event),
+            )
+          }
+        />
+      </Dropdown.Item>
+    );
   };
 
   const isSubscribeMatch = remoteConsole.subscriptions.includes(newSubscribe);
 
-  console.log(isSubscribeMatch);
-
-  switch (column) {
-    case 'type':
-    case 'date':
-    case 'event':
-      var items = _.sortBy(remoteConsole.messages, [column]);
-      break;
-  }
-
-  if (direction == 'descending') {
-    items = items.reverse();
-  }
+  const eventSearchRegex = new RegExp(eventSearch, "i");
 
   return (
-    <div>
-      <Menu>
-        <Menu.Item>
-          <Button color="red" onClick={() => disconnect(id)}>
-            Disconnect
-          </Button>
-        </Menu.Item>
-        <Menu.Item>
-          <Input
-            action={{
-              content: isSubscribeMatch ? 'Unsubscribe' : 'Subscribe',
-              onClick: () =>
-                isSubscribeMatch
-                  ? unsubscribe(id, newSubscribe)
-                  : subscribe(id, newSubscribe),
-            }}
-            placeholder="InfoLog"
-            value={newSubscribe}
-            onChange={(event, data) => setSubscribe(data.value)}
+    <Grid fluid columns='equal'>
+      <Grid.Column>
+      <div>
+        <Menu secondary>
+          <Menu.Item>
+            <Button onClick={() => clear(id)}>Clear</Button>
+          </Menu.Item>
+          <Menu.Menu position='right'>
+            <Button color="red" onClick={() => disconnect(id)}>Disconnect</Button>
+          </Menu.Menu>
+        </Menu>
+        <Menu>
+          {logToggle('Trace', ['TraceLog'])}
+          {logToggle('Debug', ['DebugLog'])}
+          {logToggle('Info', ['InfoLog'])}
+          {logToggle('Warn', ['WarnLog'])}
+          {logToggle('Error', ['ErrorLog'])}
+          {logToggle('Fatal', ['FatalLog'])}
+          {logToggle('All Logs', allLogs)}
+          <Dropdown item text='Other' closeOnChange={false} multiple open={remoteConsole.eventsOpen} simple>
+            <Dropdown.Menu>
+              <Input icon='search' iconPosition='left' name='search' value={eventSearch} onChange={(event, args) => setEventSearch(args.value)} />
+              {remoteConsole.info.Events.filter(name => name.match(eventSearchRegex)).map(item => item == 'None' || allLogs2.includes(item) ? null : logToggleDropdown(item, [item]))}
+            </Dropdown.Menu>
+          </Dropdown>
+        </Menu>
+        <div style={{paddingLeft: '1px', paddingRight:'12px', paddingTop: '15px'}}>
+          <Table attached='top' structured celled striped size='small' fixed> 
+            <Table.Header>
+              <Table.Row>
+                <Table.HeaderCell width={1}>Type</Table.HeaderCell>
+                <Table.HeaderCell width={1}>Time</Table.HeaderCell>
+                <Table.HeaderCell width={1}>Event</Table.HeaderCell>
+                <Table.HeaderCell width={1}>Logger</Table.HeaderCell>
+                <Table.HeaderCell width={5}>Message</Table.HeaderCell>
+              </Table.Row>
+            </Table.Header>
+          </Table>
+        </div>
+      </div>
+      <div style={{overflowY:'scroll', overflowX:'hidden', maxHeight:'calc(100vh - 320px)', paddingLeft:'1px', paddingRight:'1px', display:'flex', flexDirection:'column-reverse'}}>
+        <Table attached='bottom' structured celled striped size='small' fixed selectable>
+          <Table.Body>
+            {remoteConsole.messages.map(item => (
+              <Table.Row 
+                key={item.id}
+                warning={item.eventType == 'WarnLog'} 
+                negative={item.eventType == 'ErrorLog' || item.eventType == 'FatalLog'} 
+                positive={!allLogs.includes(item.eventType)}
+                onClick={() => setSelected(item.id)}
+                style={selected == item.id ? undefined : {cursor:'pointer'}}>
+                <Table.Cell width={1} singleLine={selected != item.id} content={item.type} />
+                <Table.Cell width={1} singleLine={selected != item.id}  content={item.data.timeStamp || item.timeStamp} />
+                <Table.Cell width={1} singleLine={selected != item.id}  content={item.eventType} />
+                <Table.Cell width={1} singleLine={selected != item.id}  content={item.data.logger} />
+                <Table.Cell width={5} singleLine={selected != item.id}  content={typeof item.data == 'string' ? item.data : item.data.message} />
+              </Table.Row>
+            ))}
+          </Table.Body>
+        </Table>
+      </div>
+
+      <Form onSubmit={() => { send(id, command); setCommand(''); setCommandIndex(-1); }}>
+        <Input
+          fluid
+          action={{
+            type: 'submit',
+            content: 'Send',
+          }}
+          placeholder="player kill Joel"
+          value={command}
+          onChange={(event, data) => setCommand(data.value)}
+          ref={commandRef}
           />
-        </Menu.Item>
-      </Menu>
-      <Menu>
-        {logToggle('Trace', ['TraceLog'])}
-        {logToggle('Debug', ['DebugLog'])}
-        {logToggle('Info', ['InfoLog'])}
-        {logToggle('Warn', ['WarnLog'])}
-        {logToggle('Error', ['ErrorLog'])}
-        {logToggle('Fatal', ['FatalLog'])}
-        {logToggle('All', [
-          'TraceLog',
-          'DebugLog',
-          'InfoLog',
-          'WarnLog',
-          'ErrorLog',
-          'FatalLog',
-        ])}
-      </Menu>
-
-      <Input
-        fluid
-        action={{
-          content: 'Send',
-          onClick: () => send('Command', undefined, command),
-        }}
-        placeholder="player kill Joel"
-        value={command}
-        onChange={(event, data) => setCommand(data.value)}
-      />
-
-      <Table celled striped singleLine fixed selectable sortable>
-        <Table.Header>
-          <Table.Row>
-            <Table.HeaderCell
-              sorted={column === 'type' ? direction : null}
-              onClick={handleSort('type')}
-              width={1}
-            >
-              Type
-            </Table.HeaderCell>
-            <Table.HeaderCell
-              sorted={column === 'time' ? direction : null}
-              onClick={handleSort('time')}
-              width={1}
-            >
-              Time
-            </Table.HeaderCell>
-            <Table.HeaderCell
-              sorted={column === 'event' ? direction : null}
-              onClick={handleSort('event')}
-              width={1}
-            >
-              Event
-            </Table.HeaderCell>
-            <Table.HeaderCell
-              sorted={column === 'logger' ? direction : null}
-              onClick={handleSort('logger')}
-              width={3}
-            >
-              Logger
-            </Table.HeaderCell>
-            <Table.HeaderCell
-              sorted={column === 'message' ? direction : null}
-              onClick={handleSort('message')}
-              width={7}
-            >
-              Message
-            </Table.HeaderCell>
-          </Table.Row>
-        </Table.Header>
-        <Table.Body>
-          {items.map(item => (
-            <Table.Row>
-              <Table.Cell content={item.type} />
-              <Table.Cell content={item.data.TimeStamp || item.time} />
-              <Table.Cell content={item.eventType} />
-              <Table.Cell content={item.data.LoggerName} />
-              <Table.Cell content={item.data.Message} />
-            </Table.Row>
-          ))}
-        </Table.Body>
-      </Table>
-    </div>
+      </Form>
+      </Grid.Column>
+      <Grid.Column width={3} style={{ maxHeight: 'calc(100vh - 50px)', overflowY:'auto'}}>
+        <Accordion styled vertical panels={remoteConsole.info.Modules.Modules.sort(sortByName).map(renderModule)}/>
+      {/* <Sidebar
+      as={Menu}
+      animation='push'
+      direction='right'
+      inverted
+      vertical
+      visible={true}
+    >
+      <Menu.Item as='a' header>
+        File Permissions
+      </Menu.Item>
+      <Menu.Item as='a'>Share on Social</Menu.Item>
+      <Menu.Item as='a'>Share by E-mail</Menu.Item>
+      <Menu.Item as='a'>Edit Permissions</Menu.Item>
+      <Menu.Item as='a'>Delete Permanently</Menu.Item>
+    </Sidebar> */}
+    </Grid.Column>
+    </Grid>
   );
+}
+
+function sortByName(a, b)
+{
+  if (!!a.Name) return 1;
+  if (!!b.Name) return -1;
+
+  return a.Name > b.Name ? 1 : -1;
+}
+
+function renderModule(item)
+{
+  return {
+    title: item.Name,
+    content: {
+      content: 
+      [
+        item.Submodules.length > 0 ? <Header as='h5'>Submodules</Header> : null,
+        item.Submodules.length > 0 ? <Accordion.Accordion panels={item.Submodules.sort(sortByName).map(renderModule)} /> : null,
+        item.Commands.length > 0 ? <Header as='h5'>Commands</Header> : null,
+        item.Commands.length > 0 ? <Accordion.Accordion exclusive={false} panels={item.Commands.sort(sortByName).map(renderCommand)} /> : null
+      ]
+    }
+  };
+}
+
+function renderCommand(item)
+{
+  return {
+    title: item.Name || "(Default)",
+    content: {
+      content: [...item.Parameters.map(param => <p><b>{param.Name}</b> <i>({param.Type})</i></p>),
+        <p>{item.Description}</p>]
+    }
+  };
 }
 
 ConsolePage.propTypes = {
@@ -211,8 +323,6 @@ ConsolePage.propTypes = {
 };
 
 const mapStateToProps = (state, ownProps) => {
-  console.log(ownProps);
-
   return {
     remoteConsole: RemoteConsoles.makeSelectorSingle(ownProps.id)(state),
   };
@@ -221,6 +331,13 @@ const mapStateToProps = (state, ownProps) => {
 function mapDispatchToProps(dispatch) {
   return {
     dispatch,
+    send: (id, command) =>
+    {
+      dispatch(RemoteConsoles.send(id, command))
+    },
+    clear: id => {
+      dispatch(RemoteConsoles.clear(id));
+    },
     disconnect: id => {
       dispatch(RemoteConsoles.disconnect(id));
     },

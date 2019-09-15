@@ -106,8 +106,6 @@ export function ServersPage({ servers, getServers, connect, disconnect }) {
                   </List.Item>)}
                   </List>
             </Card.Content>
-            <Card.Content extra>
-              </Card>
           </Card>))}
       </Card.Group>
     </div>

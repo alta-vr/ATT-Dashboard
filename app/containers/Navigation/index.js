@@ -45,9 +45,9 @@ export function Navigation({ navigation, changeTab, remoteConsoles }) {
 
   const active =
     pages[navigation.tab] ||
-    (consoles[navigation.tab] == undefined
-      ? emptyPage
-      : () => <ConsolePage id={navigation.tab} />);
+    (//consoles[navigation.tab] == undefined
+      //? emptyPage :
+      () => <ConsolePage id={navigation.tab} />);
 
   function ServerTab({ id, status }) {
     return (

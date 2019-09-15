@@ -16,23 +16,25 @@ import JsapiRedux from './ReduxAccess';
 
 import RemoteConsole from './RemoteConsole';
 
-const REMOTE_CONNECT = 'app/jsapi/REMOTE_CONNECT';
-const REMOTE_DISCONNECT = 'app/jsapi/REMOTE_DISCONNECT';
-const REMOTE_CONNECT_SUCCESS = 'app/jsapi/REMOTE_CONNECT_SUCCESS';
-const REMOTE_CONNECT_FAILURE = 'app/jsapi/REMOTE_CONNECT_FAILURE';
-const REMOTE_DATA = 'app/jsapi/REMOTE_DATA';
-
 const STATUS_CONNECTING = 'CONNECTING';
 const STATUS_CONNECTED = 'CONNECTED';
 const STATUS_DISCONNECTED = 'DISCONNECTED';
 
+const REMOTE_CONNECT_SUCCESS = 'app/jsapi/REMOTE_CONNECT_SUCCESS';
+const REMOTE_CONNECT_FAILURE = 'app/jsapi/REMOTE_CONNECT_FAILURE';
+const REMOTE_DATA = 'app/jsapi/REMOTE_DATA';
+
+const REMOTE_CONNECT = 'app/jsapi/REMOTE_CONNECT';
+const REMOTE_DISCONNECT = 'app/jsapi/REMOTE_DISCONNECT';
+const REMOTE_SEND = 'app/jsapi/REMOTE_SEND'
+const REMOTE_CLEAR = 'app/jsapi/REMOTE_CLEAR';
 const REMOTE_SUBSCRIBE = 'app/jsapi/REMOTE_SUBSCRIBE';
 const REMOTE_UNSUBSCRIBE = 'app/jsapi/REMOTE_UNSUBSCRIBE';
 
 export var consoles = {};
 
 const initialState = {
-  servers: {}
+  servers: {},
 };
 
 const reducer = (state, action, draft) => {
@@ -41,7 +43,10 @@ const reducer = (state, action, draft) => {
     case REMOTE_CONNECT:
       if (!state.servers[action.id] || state.servers[action.id].status == STATUS_DISCONNECTED)
       {
-        draft.servers[action.id] = { id: action.id, status: STATUS_CONNECTING, messages: [], subscriptions: [] }; 
+        draft.servers[action.id] = { id: action.id, status: STATUS_CONNECTING, messages: [], subscriptions: [], sent:[], info: 
+        {
+          Events: []
+        }}; 
         consoles[action.id] = undefined;
       }
       else
@@ -85,8 +90,31 @@ const reducer = (state, action, draft) => {
     case REMOTE_DATA:
       if (state.servers[action.id].status == STATUS_CONNECTED)
       {
-        draft.servers[action.id].messages.push(action.data);
+        var data = action.data;
+
+        if (data.type == 'SystemInfo')
+        {
+          draft.servers[action.id].info[data.data.type] = data.data.info;
+
+          data.data = JSON.stringify(data.data);
+        }
+        
+        draft.servers[action.id].messages.push(data);
       }
+    break;
+
+    case REMOTE_SEND:
+        if (state.servers[action.id].status == STATUS_CONNECTED)
+        {  
+          draft.servers[action.id].sent.push(action.command);
+
+          consoles[action.id].send(JSON.stringify({ type:'Command', content:action.command }));
+        }
+    break;
+
+    case REMOTE_CLEAR:
+        draft.servers[action.id].sent = [];
+        draft.servers[action.id].messages = [];
       break;
 
     case REMOTE_SUBSCRIBE:
@@ -95,7 +123,7 @@ const reducer = (state, action, draft) => {
         consoles[action.id].send(JSON.stringify({type:'SUBSCRIBE', eventType:action.eventType}));
 
         var index = state.servers[action.id].subscriptions.findIndex(item => item == action.eventType);
-        );
+        
         if (index < 0)
         {
           draft.servers[action.id].subscriptions.push(action.eventType);
@@ -141,7 +169,6 @@ function* connectSaga() {
     try
     {                    
       yield call(remoteConsole.connect.bind(remoteConsole), action.ip, action.commandPort, action.loggingPort);
-      );
 
       yield put(success(action.id));
 
@@ -239,6 +266,11 @@ export const connect = (id, ip, commandPort, loggingPort) => ({
   commandPort,
   loggingPort,
 });
+
+export const send = (id, command) => ({ type: REMOTE_SEND, id, command })
+
+export const clear = id => ({ type: REMOTE_CLEAR, id });
+
 export const disconnect = id => ({ type: REMOTE_DISCONNECT, id });
 
 export const subscribe = (id, eventType) => ({
