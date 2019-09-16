@@ -260,7 +260,7 @@ export function ConsolePage({
       </Form>
       </Grid.Column>
       <Grid.Column width={3} style={{ maxHeight: 'calc(100vh - 50px)', overflowY:'auto'}}>
-        <Accordion styled vertical panels={remoteConsole.info.Modules.Modules.sort(sortByName).map(renderModule)}/>
+        <Accordion styled vertical panels={remoteConsole.info.Modules.sort(sortByName).map(renderModule)}/>
       {/* <Sidebar
       as={Menu}
       animation='push'

@@ -65,7 +65,6 @@
   },
   "dependencies": {
     "@babel/polyfill": "7.4.3",
-    "alta-installer": "file:D:\\Projects\\Plastic\\Alta Launcher\\Launcher\\Launcher\\src\\jsapi",
     "chalk": "^2.4.2",
     "chrome-net": "^3.3.3",
     "compression": "1.7.4",

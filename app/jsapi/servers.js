@@ -2,7 +2,7 @@ import { take, call, put, select, fork } from 'redux-saga/effects';
 
 import sha512 from 'crypto-js/sha512';
 
-import { Servers } from 'alta-installer/dist/webApiClient';
+import { Servers } from 'alta-jsapi';
 
 import JsapiRedux from './ReduxAccess';
 

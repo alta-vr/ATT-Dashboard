@@ -1,7 +1,7 @@
 import net from 'chrome-net';
 import { EventEmitter } from 'events';
 
-import { Sessions } from 'alta-installer/dist/webApiClient';
+import { Sessions } from 'alta-jsapi';
 
 export default class RemoteConsole {
   name;
@@ -26,8 +26,28 @@ export default class RemoteConsole {
 
     await new Promise((resolve, reject) => {
       connection.onopen = () => {
+
+        connection.onmessage = message => 
+        {
+            console.log(message);
+
+            var data = JSON.parse(message.data);
+
+            console.log(data);
+
+            if (data.type == 'FatalLog' || data.type == 'ErrorLog')
+            {
+                reject(data.message);
+            }
+            else
+            {
+                console.log("Resolve!");
+                resolve();
+            }
+        }
+
         connection.send(Sessions.getLocalTokens().identity_token);
-        resolve();
+        console.log("Sent tokens!");
       };
       connection.onerror = reject;
     });
@@ -37,8 +57,14 @@ export default class RemoteConsole {
     connection.onclose = data => this.onClose(data);
   }
 
+  sendStructured(type, content, infoType, eventType)
+  {
+      send(JSON.stringify({type, content, infoType, eventType}));
+  }
+
   send(command) {
     this.connection.send(command);
+    console.log("Sent command!");
   }
 
   terminate() {

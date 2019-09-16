@@ -10,7 +10,7 @@ import {
 
 import sha512 from 'crypto-js/sha512';
 
-import { Servers } from 'alta-installer/dist/webApiClient';
+import { Servers } from 'alta-jsapi';
 
 import JsapiRedux from './ReduxAccess';
 
@@ -27,6 +27,7 @@ const REMOTE_DATA = 'app/jsapi/REMOTE_DATA';
 const REMOTE_CONNECT = 'app/jsapi/REMOTE_CONNECT';
 const REMOTE_DISCONNECT = 'app/jsapi/REMOTE_DISCONNECT';
 const REMOTE_SEND = 'app/jsapi/REMOTE_SEND'
+const REMOTE_REQUEST = 'app/jsapi/REMOTE_REQUEST'
 const REMOTE_CLEAR = 'app/jsapi/REMOTE_CLEAR';
 const REMOTE_SUBSCRIBE = 'app/jsapi/REMOTE_SUBSCRIBE';
 const REMOTE_UNSUBSCRIBE = 'app/jsapi/REMOTE_UNSUBSCRIBE';
@@ -45,7 +46,8 @@ const reducer = (state, action, draft) => {
       {
         draft.servers[action.id] = { id: action.id, status: STATUS_CONNECTING, messages: [], subscriptions: [], sent:[], info: 
         {
-          Events: []
+          Events: [],
+          Modules: []
         }}; 
         consoles[action.id] = undefined;
       }
@@ -56,13 +58,20 @@ const reducer = (state, action, draft) => {
       break;
 
     case REMOTE_DISCONNECT:
-      if (state.servers[action.id].status == STATUS_CONNECTED)
+        console.log("Disconnecting");
+      if (state.servers[action.id].status == STATUS_CONNECTED ||
+        state.servers[action.id].status == STATUS_CONNECTING)
       {
         consoles[action.id].terminate();
         consoles[action.id] = undefined;
       }
 
       draft.servers[action.id].status = STATUS_DISCONNECTED;
+
+      if (action.close)
+      {
+        delete draft.servers[action.id];
+      }
       break;
 
     case REMOTE_CONNECT_SUCCESS:
@@ -101,6 +110,13 @@ const reducer = (state, action, draft) => {
         
         draft.servers[action.id].messages.push(data);
       }
+    break;
+
+    case REMOTE_REQUEST:
+        if (state.servers[action.id].status == STATUS_CONNECTED)
+        {  
+          consoles[action.id].send(JSON.stringify({ type:'Info', infoType:action.info }));
+        }
     break;
 
     case REMOTE_SEND:
@@ -162,9 +178,8 @@ function* connectSaga() {
     console.log("Connect Saga");
 
     let remoteConsole = new RemoteConsole(action.name);
-    remoteConsole.onClose = 
 
-        consoles[action.id] = remoteConsole;
+    consoles[action.id] = remoteConsole;
 
     try
     {                    
@@ -189,6 +204,17 @@ function* connectSaga() {
 
 function* consoleSaga(id) {
   let messageReceival = yield fork(receiveMessageSaga, id);
+
+  //yield put(subscribe(id, 'TraceLog'));
+  yield put(subscribe(id, 'DebugLog'));
+  yield put(subscribe(id, 'InfoLog'));
+  yield put(subscribe(id, 'WarnLog'));
+  yield put(subscribe(id, 'ErrorLog'));
+  yield put(subscribe(id, 'FatalLog'));
+  
+  yield put(request(id, 'Players'));
+  yield put(request(id, 'Modules'));
+  yield put(request(id, 'Events'));
 
   yield call(waitForClose, id);
 
@@ -269,9 +295,11 @@ export const connect = (id, ip, commandPort, loggingPort) => ({
 
 export const send = (id, command) => ({ type: REMOTE_SEND, id, command })
 
+export const request = (id, info) => ({ type: REMOTE_REQUEST, id, info })
+
 export const clear = id => ({ type: REMOTE_CLEAR, id });
 
-export const disconnect = id => ({ type: REMOTE_DISCONNECT, id });
+export const disconnect = id => ({ type: REMOTE_DISCONNECT, id, close:true });
 
 export const subscribe = (id, eventType) => ({
   type: REMOTE_SUBSCRIBE,

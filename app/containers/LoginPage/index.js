@@ -23,7 +23,7 @@ import sha512 from 'crypto-js/sha512'
 
 import { Grid, Menu, Segment, Input, Form, Button, Message } from 'semantic-ui-react'
 
-// import { Sessions } from 'alta-installer/dist/webApiClient';
+// import { Sessions } from 'alta-jsapi';
 import { setLoggedIn } from './actions';
 
 import * as Sessions from 'jsapi/sessions';
