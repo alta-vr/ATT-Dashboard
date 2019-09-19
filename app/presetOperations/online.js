@@ -70,60 +70,6 @@ async function beginConnection(server, onDisconnect)
     }
 }
 
-class EasyRemoteConsole extends EventEmitter
-{
-    internal;
-
-    constructor(remoteConsole)
-    {
-        this.internal = remoteConsole;
-
-        remoteConsole.onMessage = this.handleMessage;
-    }
-
-    handleMessage(message)
-    {
-        var { data } = message;
-
-        if (data.type == 'Susbcription')
-        {
-            this.emit('EVENT' + data.eventType, data.data);
-        }
-        else if (data.type == 'Info')
-        {
-            this.emit('INFO' + data.infoType, data.info);
-        }
-    }
-
-    sendCommand(command)
-    {
-        this.internal.sendStructured('Command', command);
-    }
-
-    async getInfo(info)
-    {
-        return new Promise((resolve, reject) => 
-        {
-            this.once('INFO' + info, resolve);
-
-            setTimeout(reject, 5000);
-        });
-    }
-
-    subscribe(event, callback)
-    {
-        this.addListener('EVENT' + event, callback);
-
-        this.internal.sendStructured('Subscribe', undefined, undefined, event);
-    }
-
-    unsubscribe(command)
-    {
-        this.removeListener('EVENT' + event, callback);
-        
-        this.internal.sendStructured('Unsubscribe', undefined, undefined, event);
-    }
-}
 
 async function getTargetServers()
 {

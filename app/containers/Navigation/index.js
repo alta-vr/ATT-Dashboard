@@ -41,19 +41,20 @@ export function Navigation({ navigation, changeTab, remoteConsoles }) {
 
   RemoteConsoles.inject();
 
-  const handleClick = (e, { name }) => changeTab(name);
+  const handleClick = (e, args) => changeTab(args.id);
 
   const active =
     pages[navigation.tab] ||
-    (//consoles[navigation.tab] == undefined
-      //? emptyPage :
+    (consoles[navigation.tab] == undefined
+      ? pages.servers :
       () => <ConsolePage id={navigation.tab} />);
 
-  function ServerTab({ id, status }) {
+  function ServerTab({ name, id, status }) {
     return (
       <Menu.Item
-        name={id}
-        content={`${id} (${status})`}
+        id={id}
+        name={name}
+        content={`${id} - ${name} (${status})`}
         active={navigation.tab == id}
         onClick={handleClick}
       />
@@ -65,11 +66,13 @@ export function Navigation({ navigation, changeTab, remoteConsoles }) {
       <Grid.Column stretched width={2}>
         <Menu fluid vertical tabular>
           <Menu.Item
+            id="account"
             name="account"
             active={navigation.tab === 'account'}
             onClick={handleClick}
           />
           <Menu.Item
+            id="servers"
             name="servers"
             active={navigation.tab === 'servers'}
             onClick={handleClick}

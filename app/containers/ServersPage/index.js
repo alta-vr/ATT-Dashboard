@@ -13,7 +13,6 @@ import { compose } from 'redux';
 
 import { useInjectSaga } from 'utils/injectSaga';
 import { useInjectReducer } from 'utils/injectReducer';
-import { GameVersion } from 'alta-installer/dist/data/GameInfo';
 import makeSelectServersPage from './selectors';
 import reducer from './reducer';
 import saga from './saga';
@@ -22,6 +21,8 @@ import messages from './messages';
 
 import * as Servers from 'jsapi/servers';
 import * as RemoteConsoles from 'jsapi/remoteConsoles';
+
+import { changeTab } from '../Navigation/actions';
 
 import {
   Grid,
@@ -63,8 +64,9 @@ export function ServersPage({ servers, getServers, connect, disconnect }) {
           <Button
             onClick={() =>
               connect(
+                "Local",
                 -1,
-                '127.0.0.1',
+                '192.168.0.2',
                 1760,
               )
             }
@@ -90,7 +92,7 @@ export function ServersPage({ servers, getServers, connect, disconnect }) {
                         {item.online_players.length} Online
                   </Grid.Column>
                   <Grid.Column>
-                    <Button basic color='green' onClick={() => connect(item.id, item.meta_data.public_ip_address, 1758, 1759)}>Connect</Button>                
+                    <Button basic color='green' onClick={() => connect(item.name, item.id)}>Connect</Button>                
                       </Grid.Column>
                 </Grid.Row>
                   </Grid>
@@ -128,8 +130,9 @@ function mapDispatchToProps(dispatch) {
     getServers: () => {
       dispatch(Servers.getServers());
     },
-    connect: (id, ip, port) => {
-      dispatch(RemoteConsoles.connect(id, ip, port));
+    connect: (name, id, ip, port) => {
+      dispatch(RemoteConsoles.connect(name, id, ip, port));
+      dispatch(changeTab(id));
     },
     disconnect: id => {
       dispatch(RemoteConsoles.disconnect(id));
