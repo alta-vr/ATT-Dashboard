@@ -42,7 +42,9 @@
     "test": "cross-env NODE_ENV=test jest --coverage",
     "test:watch": "cross-env NODE_ENV=test jest --watchAll",
     "coveralls": "cat ./coverage/lcov.info | coveralls",
-    "prettify": "prettier --write"
+    "prettify": "prettier --write",
+    "buildup": "npm run build && npm run upload",
+    "upload": "gsutil -m cp -r ./build/* gs://dashboard.townshiptale.com"
   },
   "browserslist": [
     "last 2 versions",
