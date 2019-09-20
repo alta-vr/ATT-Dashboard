@@ -67,6 +67,7 @@
   },
   "dependencies": {
     "@babel/polyfill": "7.4.3",
+    "@types/react-responsive": "^3.0.3",
     "@types/react-virtualized-auto-sizer": "^1.0.0",
     "alta-jsapi": "git+https://github.com/alta-vr/alta-jsapi.git",
     "att-websockets": "git+https://github.com/alta-vr/att-websockets.git",
@@ -96,6 +97,7 @@
     "react-intl": "2.8.0",
     "react-redux": "7.0.2",
     "react-resize-observer": "^1.1.1",
+    "react-responsive": "^8.0.1",
     "react-router-dom": "5.0.0",
     "react-virtualized-auto-sizer": "^1.0.2",
     "react-window": "^1.8.5",

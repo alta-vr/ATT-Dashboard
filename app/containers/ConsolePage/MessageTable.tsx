@@ -16,6 +16,10 @@ import * as RemoteConsoles from '../../jsapi/remoteConsoles';
 
 import { VariableSizeList } from 'react-window';
 
+import Responsive from 'react-responsive';
+
+const { useMediaQuery } = require('react-responsive')
+
 import
 {
     Grid,
@@ -35,6 +39,11 @@ import { StringLiteral } from '@babel/types';
 const Table = styled.div`
 
     height: calc(100vh - 300px);
+    
+    @media (max-width: 1224px)
+    {
+		height: calc(100vh - 180px);
+    }
 `;
 
 
@@ -142,6 +151,8 @@ export const BodyRow = styled(Row)`
     color: #333333;
     background-color: ${(props:{color:string}) => colors[props.color]}50;
 
+    cursor: pointer;
+
     :hover
     {
 		background-color: ${(props:{color:string}) => colors[props.color]}A0;
@@ -153,8 +164,9 @@ export const Wrapper = styled.div`
 
     display: flex;
 	flex-direction: row;
+    width: 100%;
 
-    @media (max-width: 600px)
+    @media (max-width: 1224px)
     {
 		flex-direction: column;
     }
@@ -180,17 +192,21 @@ export const List = styled(VariableSizeList)`
 
 export default function MessageTable(props: { id: number })
 {
+    const desktop = useMediaQuery({query: '(min-device-width: 1224px)'});
+
     return <Table>
-        <HeaderRow>
-            <Wrapper>
-                <Column>Type</Column>
-                <Column>Time</Column>
-                <Column>Event</Column>
-                <Column>Logger</Column>
-                <Column>Message</Column>
-            </Wrapper>
-        </HeaderRow>
-        <TableBody id={props.id} />
+        <Responsive minDeviceWidth={1224}>   
+            <HeaderRow>
+                <Wrapper>
+                    <Column>Type</Column>
+                    <Column>Time</Column>
+                    <Column>Event</Column>
+                    <Column>Logger</Column>
+                    <Column>Message</Column>
+                </Wrapper>
+            </HeaderRow>
+        </Responsive>
+        <TableBody id={props.id} desktop={desktop} />
     </Table>;
 }
 
@@ -198,11 +214,13 @@ type Props =
     {
         id: number,
         messages: any[],
+        desktop: boolean,
     }
 
 function TableBodyRaw({
     id,
     messages,
+    desktop
 }: Props)
 {
     const [selected, setSelected] = React.useState(undefined);
@@ -225,17 +243,23 @@ function TableBodyRaw({
         setLastCount(messages.length);
     }
 
+    var rowHeight = desktop ? 44 : 120;
+    
     return (
             <AutoSizer>
             {({height, width}) => {
+
+            var listHeight = desktop ? height - rowHeight : height;
+            var extraHeight = desktop ? 24 : 48;
+
             return <List
                 ref={listRef}
-                height={height - 44} width={width}
+                height={listHeight} width={width}
                 itemKey={(index, data) => data[index].id}
                 itemData={messages}
                 itemCount={messages.length}
-                estimatedItemSize={44}
-                itemSize={(index) => selected == messages[index].id ? selectedHeight : 44}
+                estimatedItemSize={rowHeight}
+                itemSize={(index) => selected == messages[index].id ? selectedHeight + 24 : rowHeight}
             >
                 {({ index, style }) =>
                     <MessageRow
@@ -245,7 +269,9 @@ function TableBodyRaw({
                         selected={selected == messages[index].id}
                         onResize={rect =>
                         {
-                            if (rect.height != selectedHeight && rect.height > 44)
+                            console.log(rect.height);
+                            
+                            if (rect.height != selectedHeight && rect.height > rowHeight)
                             {
                                 setSelectedHeight(rect.height);
                             }

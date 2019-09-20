@@ -115,18 +115,19 @@ const reducer = (state:State, action:any, draft:State) => {
       {
         var message:Message = action.message;
 
-        console.log(message);
-
         if (message.type == MessageType.CommandResult)
         {
-          var variable = draft.servers[action.id].sent[message.commandId].variable;
+          var sent = draft.servers[action.id].sent[message.commandId];
 
-          if (!!variable)
+          if (!!sent)
           {
-            draft.servers[action.id].info[variable] = message.data.Result;
-          }
+            if (!!sent.variable)
+            {
+              draft.servers[action.id].info[sent.variable] = message.data.Result;
+            }
 
-          draft.servers[action.id].sent[message.commandId].response = message;
+            draft.servers[action.id].sent[message.commandId].response = message;
+          }
         }
         
         draft.servers[action.id].messages.push(message);
@@ -205,7 +206,6 @@ function* connectSaga() {
 
         if (details.allowed)
         {
-          console.log(details);
           ip = details.connection.address;
           port = details.connection.websocket_port || 1760;
         }

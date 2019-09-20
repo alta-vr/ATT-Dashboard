@@ -1,6 +1,6 @@
 
 import * as React from 'react';
-import { Menu, Button, Dropdown, Input, Checkbox } from 'semantic-ui-react';
+import { Menu, Button, Dropdown, Input, Checkbox, Divider } from 'semantic-ui-react';
 import { DispatchProps } from '.';
 
 import { connect } from 'react-redux';
@@ -11,6 +11,8 @@ import * as RemoteConsoles from '../../jsapi/remoteConsoles';
 import { consoles } from '../../jsapi/remoteConsoles';
 import { EventType } from 'att-websockets';
 
+import Responsive from 'react-responsive';
+
 export const allLogs = [
     EventType.TraceLog,
     EventType.DebugLog,
@@ -20,7 +22,9 @@ export const allLogs = [
     EventType.FatalLog,
   ];
   
-const hiddenEvents = [...allLogs, EventType.OffLog, EventType.None];
+const hiddenEvents = [EventType.OffLog, EventType.None];
+
+const hiddenAndLogEvents = [...allLogs, ...hiddenEvents];
 
 type Props = DispatchProps &
 {
@@ -73,11 +77,9 @@ function SubscriptionBar({id, subscribe, unsubscribe, subscriptions, events}:Pro
       );
     };
 
-    const isSubscribeMatch = subscriptions.includes(newSubscribe);
-  
-    const eventSearchRegex = new RegExp(eventSearch, "i");
-
-    return <Menu>
+    const logOptions = () =>
+    {
+      return <React.Fragment>
         {logToggle('Trace', [EventType.TraceLog])}
         {logToggle('Debug', [EventType.DebugLog])}
         {logToggle('Info', [EventType.InfoLog])}
@@ -85,12 +87,27 @@ function SubscriptionBar({id, subscribe, unsubscribe, subscriptions, events}:Pro
         {logToggle('Error', [EventType.ErrorLog])}
         {logToggle('Fatal', [EventType.FatalLog])}
         {logToggle('All Logs', allLogs)}
-        <Dropdown item text='Other' closeOnChange={false} multiple simple>
-        <Dropdown.Menu>
-            <Input icon='search' iconPosition='left' name='search' value={eventSearch} onChange={(event, args) => setEventSearch(args.value)} />
-            {!events ? null : events.filter((name:string) => name.match(eventSearchRegex)).map((item:EventType) => hiddenEvents.includes(item) ? null : logToggleDropdown(item, [item]))}
-        </Dropdown.Menu>
-        </Dropdown>
+      </React.Fragment>;
+    }
+
+    const isSubscribeMatch = subscriptions.includes(newSubscribe);
+  
+    const eventSearchRegex = new RegExp(eventSearch, "i");
+
+    return <Menu fluid stackable>
+        <Responsive minDeviceWidth={1224}>
+          {logOptions()}
+          <Dropdown item text='Other' closeOnChange={false} multiple simple>
+            <Dropdown.Menu>
+                <Input icon='search' iconPosition='left' name='search' value={eventSearch} onChange={(event, args) => setEventSearch(args.value)} />
+                {!events ? null : events.filter((name:string) => name.match(eventSearchRegex)).map((item:EventType) => hiddenAndLogEvents.includes(item) ? null : logToggleDropdown(item, [item]))}
+            </Dropdown.Menu>
+          </Dropdown>
+        </Responsive>
+        <Responsive maxDeviceWidth={1224}>
+          <Input icon='search' iconPosition='left' name='search' value={eventSearch} onChange={(event, args) => setEventSearch(args.value)} />
+          {events.filter((name:string) => name.match(eventSearchRegex)).map((item:EventType) => hiddenEvents.includes(item) ? null : logToggle(item, [item]))}
+        </Responsive>
     </Menu>
 }
 

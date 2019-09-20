@@ -11,6 +11,8 @@ import { FormattedMessage } from 'react-intl';
 import { createStructuredSelector } from 'reselect';
 import { compose } from 'redux';
 
+import styled from 'styled-components';
+
 import { useInjectSaga } from 'utils/injectSaga';
 import { useInjectReducer } from 'utils/injectReducer';
 import makeSelectServersPage from './selectors';
@@ -23,6 +25,8 @@ import * as Servers from 'jsapi/servers';
 import * as RemoteConsoles from 'jsapi/remoteConsoles';
 
 import { changeTab } from '../Navigation/actions';
+
+import Responsive, { useMediaQuery } from 'react-responsive';
 
 import {
   Grid,
@@ -40,9 +44,16 @@ import {
   Divider,
 } from 'semantic-ui-react';
 
+const ResponsiveCard = styled(Card)`
+
+  width: ${props => props.desktop ? '290px' : '100% !important'};
+`
+
 export function ServersPage({ servers, getServers, connect, disconnect }) {
   useInjectReducer({ key: 'serversPage', reducer });
   useInjectSaga({ key: 'serversPage', saga });
+
+  const [filter, setFilter] = React.useState('');
 
   Servers.inject();
   RemoteConsoles.inject();
@@ -50,6 +61,10 @@ export function ServersPage({ servers, getServers, connect, disconnect }) {
   if (!servers.servers && !servers.isRequesting && !servers.error) {
     getServers();
   }
+
+  const isDesktop = useMediaQuery({query: '(min-device-width: 1224px)'});
+
+  const filterRegex = new RegExp(filter, "i");
 
   return (
     <div>
@@ -75,12 +90,15 @@ export function ServersPage({ servers, getServers, connect, disconnect }) {
           </Button>
         </Menu.Item>
       </Menu>
+      <Input fluid icon='search' onChange={(event, args) => setFilter(args.value)}/>
+      <Divider/>
       <Card.Group>
         {servers.servers &&
           servers.servers
+            .filter(item => item.name.match(filterRegex))
             .sort((a, b) => b.online_players.length - a.online_players.length)
             .map(item => (
-              <Card key={item.id}>
+              <ResponsiveCard key={item.id} desktop={isDesktop}>
             <Card.Content>
                   <Card.Header>{item.name}</Card.Header>
               <Card.Meta>{item.region}</Card.Meta>
@@ -108,7 +126,7 @@ export function ServersPage({ servers, getServers, connect, disconnect }) {
                   </List.Item>)}
                   </List>
             </Card.Content>
-          </Card>))}
+          </ResponsiveCard>))}
       </Card.Group>
     </div>
   );

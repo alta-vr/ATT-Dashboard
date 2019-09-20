@@ -96,7 +96,7 @@ function CommandInput({id, send, sent}:Props)
         }
     });
 
-    return <Form onSubmit={() => { send(id, command); setCommand(''); setCommandIndex(-1); }}>
+    return <Form style={{position:'sticky', bottom: 0}} onSubmit={() => { send(id, command); setCommand(''); setCommandIndex(-1); }}>
       <Input
         fluid
         action={{

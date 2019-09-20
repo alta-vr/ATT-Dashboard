@@ -5,7 +5,7 @@
  */
 
 import * as React from 'react';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import * as PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
@@ -24,9 +24,75 @@ import { EventType } from 'att-websockets';
 import TopBar from './topBar';
 import SubscriptionBar, { allLogs } from './SubscriptionBar';
 import CommandInput from './CommandInput';
-import { BodyRow, Column } from './MessageTable';
+
+import { BodyRow, Column, Wrapper } from './MessageTable';
 
 import ResizeObserver from 'react-resize-observer';
+
+import Responsive from 'react-responsive';
+
+const MobileRow = styled.div`
+
+    display: flex;
+    flex-direction: row;
+`;
+
+const MobileHeader = styled.div`
+
+    flex 0 0 85px;
+
+    font-weight: bold;
+`;
+
+const MobileValue = styled.div`
+
+    width: 0px;
+    min-width: 0px;
+
+    flex 1 0 0;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+`;
+
+const Selected = css`
+
+    ${MobileHeader}
+    {
+        flex 0 0 19px;
+    }
+
+    ${MobileValue}
+    {
+        width: 100%;
+
+        flex unset;
+
+        overflow: auto;
+        text-overflow: initial;
+        white-space: pre;
+    }
+
+    >${MobileRow}
+    {
+        flex-direction: column;
+    }
+`;
+
+const MobileSupportedWrapper = styled.div`
+
+    ${(props: { selected?: boolean }) => props.selected ? Selected : null};
+
+    display: flex;
+	flex-direction: row;
+    width: 100%;
+
+    @media (max-width: 1224px)
+    {
+		flex-direction: column;
+    }
+`;
 
 type Props =
 {
@@ -51,7 +117,6 @@ function MessageRow({
 {  
   var item = fitToTable(message);
 
-  // {cursor:'pointer'}
   return (<BodyRow 
         key={item.id}
         selected={selected}
@@ -59,12 +124,23 @@ function MessageRow({
         onClick={() => setSelected(item.id)}
         style={style}
         >       
-        <Column>{item.type}</Column>
-        <Column>{item.timeStamp}</Column>
-        <Column>{item.eventType}</Column>
-        <Column>{item.logger}</Column>
-        <Column>{item.message}</Column>
-        <ResizeObserver onResize={onResize}/>   
+        <MobileSupportedWrapper selected={selected} >
+            <Responsive minDeviceWidth={1224}>
+                <Column>{item.type}</Column>
+                <Column>{item.timeStamp}</Column>
+                <Column>{item.eventType}</Column>
+                <Column>{item.logger}</Column>
+                <Column>{item.message}</Column>
+            </Responsive>
+            <Responsive maxDeviceWidth={1224}>
+                <MobileRow><MobileHeader>Type</MobileHeader><MobileValue>{item.type}</MobileValue></MobileRow>
+                <MobileRow><MobileHeader>Time</MobileHeader><MobileValue>{item.timeStamp}</MobileValue></MobileRow>
+                <MobileRow><MobileHeader>Event</MobileHeader><MobileValue>{item.eventType}</MobileValue></MobileRow>
+                <MobileRow><MobileHeader>Logger</MobileHeader><MobileValue>{item.logger}</MobileValue></MobileRow>
+                <MobileRow><MobileHeader>Message</MobileHeader><MobileValue>{item.message}</MobileValue></MobileRow> 
+            </Responsive>
+            <ResizeObserver onResize={onResize}/> 
+        </MobileSupportedWrapper>
     </BodyRow>
   );
 }

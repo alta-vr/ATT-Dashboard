@@ -8,10 +8,12 @@ import { compose } from 'redux';
 
 import * as RemoteConsoles from '../../jsapi/remoteConsoles';
 
+import Responsive from 'react-responsive';
+
 type Props = 
 {
     id:number,
-    modules:Module[]
+    modules:Module[],
 }
 
 function ModulesSidebar({id, modules}:Props)
@@ -21,9 +23,18 @@ function ModulesSidebar({id, modules}:Props)
         return null;
     }
 
-    return <Grid.Column width={3} style={{ maxHeight: 'calc(100vh - 50px)', overflowY:'auto'}}>
-      <Accordion styled vertical panels={modules.sort(sortByName).map(renderModule)}/>
-    </Grid.Column>;
+    return <React.Fragment>
+    <Responsive maxDeviceWidth={1224}>
+      <Grid.Column>
+        <Accordion styled vertical panels={modules.sort(sortByName).map(renderModule)}/>
+      </Grid.Column>
+    </Responsive>
+    <Responsive minDeviceWidth={1224}>
+      <Grid.Column width={3} style={{ maxHeight: 'calc(100vh - 50px)', overflowY:'auto'}}>
+        <Accordion styled vertical panels={modules.sort(sortByName).map(renderModule)}/>
+      </Grid.Column>
+    </Responsive>
+    </React.Fragment>;
 }
 
 

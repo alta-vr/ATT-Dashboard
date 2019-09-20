@@ -4,7 +4,7 @@
  *
  */
 
-import React from 'react';
+import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { FormattedMessage } from 'react-intl';
@@ -20,6 +20,10 @@ import reducer from './reducer';
 import saga from './saga';
 import messages from './messages';
 
+import Responsive from 'react-responsive';
+
+import styled from 'styled-components';
+
 import { changeTab } from './actions';
 
 import LoginPage from '../LoginPage';
@@ -34,6 +38,16 @@ const pages = {
   account: () => <LoginPage />,
   servers: () => <ServersPage />,
 };
+
+const BodyGrid = styled(Grid)`
+
+  min-height: 100%;
+
+  @media (max-width: 1224px)
+  {
+		min-height: 100vh;
+  }
+`;
 
 export function Navigation({ navigation, changeTab, remoteConsoles }) {
   useInjectReducer({ key: 'navigation', reducer });
@@ -61,30 +75,41 @@ export function Navigation({ navigation, changeTab, remoteConsoles }) {
     );
   }
 
-  return (
-    <Grid style={{ minHeight: '100%' }}>
-      <Grid.Column stretched width={2}>
-        <Menu fluid vertical tabular>
-          <Menu.Item
-            id="account"
-            name="account"
-            active={navigation.tab === 'account'}
-            onClick={handleClick}
-          />
-          <Menu.Item
-            id="servers"
-            name="servers"
-            active={navigation.tab === 'servers'}
-            onClick={handleClick}
-          />
-          {Object.values(remoteConsoles.servers).map(ServerTab)}
-        </Menu>
-      </Grid.Column>
+  function FullMenu(vertical)
+  {
+    return <Menu fluid vertical={vertical} secondary stackable style={{maxWidth:'100%'}}>
+      <Menu.Item
+        id="account"
+        name="account"
+        active={navigation.tab === 'account'}
+        onClick={handleClick}
+      />
+      <Menu.Item
+        id="servers"
+        name="servers"
+        active={navigation.tab === 'servers'}
+        onClick={handleClick}
+      />
+      {Object.values(remoteConsoles.servers).map(ServerTab)}
+    </Menu>
+  }
 
-      <Grid.Column stretched width={14}>
-        {active()}
-      </Grid.Column>
-    </Grid>
+  return (
+    <Fragment>
+      <Responsive maxDeviceWidth={1224}>
+          {FullMenu(false)}
+      </Responsive>
+      <BodyGrid>
+        <Responsive minDeviceWidth={1224}>
+          <Grid.Column stretched width={2}>
+            {FullMenu(true)}
+          </Grid.Column>
+        </Responsive>
+        <Grid.Column stretched computer={14} mobile={16}>
+          {active()}
+        </Grid.Column>
+      </BodyGrid>
+    </Fragment>
   );
 }
 

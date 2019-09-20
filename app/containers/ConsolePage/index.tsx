@@ -14,6 +14,8 @@ import * as _ from 'lodash';
 
 import * as RemoteConsoles from '../../jsapi/remoteConsoles';
 
+import Responsive from 'react-responsive';
+
 import {
   Table,
   Grid,
@@ -35,14 +37,15 @@ import {
   Accordion,
   Header,
 } from 'semantic-ui-react';
-import { consoles } from '../../jsapi/remoteConsoles';
+
 import { EventType } from 'att-websockets';
+
 import TopBar from './topBar';
 import SubscriptionBar, { allLogs } from './SubscriptionBar';
 import CommandInput from './CommandInput';
 import MessageTable from './MessageTable';
 import ModulesSidebar from './ModulesSidebar';
-
+import NavigationBar from './NavigationBar';
 
 type Props =
 {
@@ -65,11 +68,34 @@ export function ConsolePage({id}:Props) {
     <Grid fluid columns='equal'>
       <Grid.Column>
       <TopBar id={id}/>
-      <SubscriptionBar id={id}/>
-      <MessageTable id={id}/>      
-      <CommandInput id={id}/>
+      <Responsive minDeviceWidth={1224}>
+        <SubscriptionBar id={id}/>
+        <MessageTable id={id}/>      
+        <CommandInput id={id}/>
+      </Responsive>
+      <Responsive maxDeviceWidth={1224}>
+        <NavigationBar options={[
+          { 
+            name: "Console",
+            content: () => <React.Fragment>
+              <MessageTable id={id}/>      
+              <CommandInput id={id}/>
+            </React.Fragment>
+          },
+          {
+            name: "Events",
+            content: () => <SubscriptionBar id={id}/>
+          },
+          {
+            name: "Modules",
+            content: () => <ModulesSidebar id={id}/>
+          }          
+          ]}/>
+      </Responsive>
       </Grid.Column>
-      <ModulesSidebar id={id}/>
+      <Responsive minDeviceWidth={1224}>
+        <ModulesSidebar id={id}/>
+      </Responsive>
     </Grid>
   );
 }
