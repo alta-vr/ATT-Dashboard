@@ -285,7 +285,14 @@ function TableBodyRaw({
                         }}
                         setSelected={value => 
                         {
-                            setSelected(value);
+                            if (selected == value)
+                            {
+                                setSelected(-1);
+                            }
+                            else
+                            {
+                                setSelected(value);
+                            }
                         }}
                     />
                 }
