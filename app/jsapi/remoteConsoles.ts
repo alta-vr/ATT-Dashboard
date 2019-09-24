@@ -10,7 +10,7 @@ import {
 
 import JsapiRedux from './ReduxAccess';
 
-import { Servers } from 'alta-jsapi';
+import { Servers, Sessions } from 'alta-jsapi';
 
 import { Connection, EventType, Message, MessageType } from 'att-websockets';
 
@@ -56,6 +56,7 @@ const initialState:State = {
 };
 
 const reducer = (state:State, action:any, draft:State) => {
+    
   switch (action.type)
   {
     case REMOTE_CONNECT:
@@ -191,14 +192,15 @@ function* connectSaga() {
     }
 
     console.log("Connect Saga");
-
+    console.log(action);
 
     var ip = action.ip;
     var port = action.port;
+    var token = Sessions.getLocalTokens().identity_token;
 
     if (!action.ip)
     {
-      console.log("Getting details");
+      console.log("Getting connection details");
       
       try
       {
@@ -208,6 +210,7 @@ function* connectSaga() {
         {
           ip = details.connection.address;
           port = details.connection.websocket_port || 1760;
+          token = details.token;
         }
         else
         {
@@ -228,9 +231,11 @@ function* connectSaga() {
 
     consoles[action.id] = remoteConsole;
 
+    console.log(`Calling connect to ${ip}:${port} with token ${token}`);
+
     try
     {                    
-      yield call(remoteConsole.connect.bind(remoteConsole), ip, port);
+      yield call(remoteConsole.connect.bind(remoteConsole), ip, port, token);
 
       yield put(success(action.id));
 
@@ -331,12 +336,13 @@ export const makeMessagesSelector = (id:number) => jsapiRedux.makeSubSelector((s
 export const makeMessageSelector = (id:number, messageId:number) => jsapiRedux.makeSubSelector((state:State) => state.servers[id].messages.find(item => item.id == messageId));
 export const makeModulesSelector = (id:number) => jsapiRedux.makeSubSelector((state:State) => state.servers[id].info.Modules || []);
 
-export const connect = (name:string, id:number, ip?:string, port?:string|number) => ({
+export const connect = (name:string, id:number, ip:string, port:string|number, token:string) => ({
   type: REMOTE_CONNECT,
   name,
   id,
   ip,
-  port
+  port,
+  token
 });
 
 export const send = (id:number, command:string, variable:string|undefined = undefined) => ({ type: REMOTE_SEND, id, command, variable })
