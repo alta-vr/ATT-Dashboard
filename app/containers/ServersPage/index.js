@@ -148,8 +148,8 @@ function mapDispatchToProps(dispatch) {
     getServers: () => {
       dispatch(Servers.getServers());
     },
-    connect: (name, id, ip, port) => {
-      dispatch(RemoteConsoles.connect(name, id, ip, port));
+    connect: (name, id, ip, port, token) => {
+      dispatch(RemoteConsoles.connect(name, id, ip, port, token));
       dispatch(changeTab(id));
     },
     disconnect: id => {
