@@ -81,7 +81,7 @@ export function ServersPage({ servers, getServers, connect, disconnect }) {
               connect(
                 "Local",
                 -1,
-                '192.168.0.2',
+                '127.0.0.1',
                 1760,
               )
             }
