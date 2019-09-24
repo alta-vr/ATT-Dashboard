@@ -127,14 +127,14 @@ function MessageRow({
         <MobileSupportedWrapper selected={selected} >
             <Responsive minDeviceWidth={1224}>
                 <Column>{item.type}</Column>
-                <Column>{item.timeStamp}</Column>
+                <Column>{item.timeStamp.toLocaleTimeString()}</Column>
                 <Column>{item.eventType}</Column>
                 <Column>{item.logger}</Column>
                 <Column>{item.message}</Column>
             </Responsive>
             <Responsive maxDeviceWidth={1224}>
                 <MobileRow><MobileHeader>Type</MobileHeader><MobileValue>{item.type}</MobileValue></MobileRow>
-                <MobileRow><MobileHeader>Time</MobileHeader><MobileValue>{item.timeStamp}</MobileValue></MobileRow>
+                <MobileRow><MobileHeader>Time</MobileHeader><MobileValue>{item.timeStamp.toLocaleTimeString()}</MobileValue></MobileRow>
                 <MobileRow><MobileHeader>Event</MobileHeader><MobileValue>{item.eventType}</MobileValue></MobileRow>
                 <MobileRow><MobileHeader>Logger</MobileHeader><MobileValue>{item.logger}</MobileValue></MobileRow>
                 <MobileRow><MobileHeader>Message</MobileHeader><MobileValue>{item.message}</MobileValue></MobileRow> 
@@ -149,7 +149,7 @@ type TableRow =
 {
   id:number,
   type?:string,
-  timeStamp?:string,
+  timeStamp?:Date,
   eventType?:EventType,
   logger?:string,
   message?:string,
@@ -168,7 +168,7 @@ function fitToTable(item:any) : TableRow
 
   result.color = 'normal';
   result.type = item.type;
-  result.timeStamp = item.data.timeStamp || item.timeStamp;
+  result.timeStamp = new Date(item.data.timeStamp || item.timeStamp);
   result.eventType = item.eventType;
   result.logger = item.data.logger;
 
