@@ -208,7 +208,7 @@ function* connectSaga() {
 
         if (details.allowed)
         {
-          ip = '127.0.0.1';// details.connection.address;
+          ip = details.connection.address;
           port = details.connection.websocket_port || 1760;
           token = details.token;
         }
