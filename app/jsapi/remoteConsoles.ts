@@ -208,7 +208,7 @@ function* connectSaga() {
 
         if (details.allowed)
         {
-          ip = details.connection.address;
+          ip = '127.0.0.1';// details.connection.address;
           port = details.connection.websocket_port || 1760;
           token = details.token;
         }
@@ -351,12 +351,12 @@ export const clear = (id:number) => ({ type: REMOTE_CLEAR, id });
 
 export const disconnect = (id:number) => ({ type: REMOTE_DISCONNECT, id, close:true });
 
-export const subscribe = (id:number, eventType:EventType) => ({
+export const subscribe = (id:number, eventType:string) => ({
   type: REMOTE_SUBSCRIBE,
   id,
   eventType,
 });
-export const unsubscribe = (id:number, eventType:EventType) => ({
+export const unsubscribe = (id:number, eventType:string) => ({
   type: REMOTE_UNSUBSCRIBE,
   id,
   eventType,

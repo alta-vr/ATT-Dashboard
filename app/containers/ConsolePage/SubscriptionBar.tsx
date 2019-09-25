@@ -13,7 +13,7 @@ import { EventType } from 'att-websockets';
 
 import Responsive from 'react-responsive';
 
-export const allLogs = [
+export const allLogs:string[] = [
     EventType.TraceLog,
     EventType.DebugLog,
     EventType.InfoLog,
@@ -22,15 +22,15 @@ export const allLogs = [
     EventType.FatalLog,
   ];
   
-const hiddenEvents = [EventType.OffLog, EventType.None];
+const hiddenEvents:string[] = [EventType.OffLog, EventType.None];
 
-const hiddenAndLogEvents = [...allLogs, ...hiddenEvents];
+const hiddenAndLogEvents:string[] = [...allLogs, ...hiddenEvents];
 
 type Props = DispatchProps &
 {
     id:number,
-    subscriptions:EventType[],
-    events:EventType[]
+    subscriptions:string[],
+    events:{name:string, type:any}[]
 }
 
 function SubscriptionBar({id, subscribe, unsubscribe, subscriptions, events}:Props)
@@ -38,7 +38,7 @@ function SubscriptionBar({id, subscribe, unsubscribe, subscriptions, events}:Pro
     const [newSubscribe, setSubscribe] = React.useState(EventType.None);
     const [eventSearch, setEventSearch] = React.useState('');
 
-    const logToggle = (label:string, events:EventType[]) => {
+    const logToggle = (label:string, events:string[]) => {
       const isEnabled = events.every(event => subscriptions.includes(event));
   
       return (
@@ -57,7 +57,7 @@ function SubscriptionBar({id, subscribe, unsubscribe, subscriptions, events}:Pro
       );
     };
     
-    const logToggleDropdown = (label:string, events:EventType[]) => {
+    const logToggleDropdown = (label:string, events:string[]) => {
   
       const isEnabled = events.every(event => subscriptions.includes(event));
   
@@ -100,13 +100,13 @@ function SubscriptionBar({id, subscribe, unsubscribe, subscriptions, events}:Pro
           <Dropdown item text='Other' closeOnChange={false} multiple simple>
             <Dropdown.Menu>
                 <Input icon='search' iconPosition='left' name='search' value={eventSearch} onChange={(event, args) => setEventSearch(args.value)} />
-                {!events ? null : events.filter((name:string) => name.match(eventSearchRegex)).map((item:EventType) => hiddenAndLogEvents.includes(item) ? null : logToggleDropdown(item, [item]))}
+                {!events ? null : events.filter((event) => event.name.match(eventSearchRegex)).map((item) => hiddenAndLogEvents.includes(item.name) ? null : logToggleDropdown(item.name, [item.name]))}
             </Dropdown.Menu>
           </Dropdown>
         </Responsive>
         <Responsive maxDeviceWidth={1224}>
           <Input icon='search' iconPosition='left' name='search' value={eventSearch} onChange={(event, args) => setEventSearch(args.value)} />
-          {events.filter((name:string) => name.match(eventSearchRegex)).map((item:EventType) => hiddenEvents.includes(item) ? null : logToggle(item, [item]))}
+          {events.filter((event) => event.name.match(eventSearchRegex)).map((event) => hiddenEvents.includes(event.name) ? null : logToggle(event.name, [event.name]))}
         </Responsive>
     </Menu>
 }

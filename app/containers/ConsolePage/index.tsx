@@ -56,8 +56,8 @@ type Props =
 export type DispatchProps =
 {
   disconnect: (id:number)=>void,
-  subscribe: (id:number, type:EventType)=>void,
-  unsubscribe: (id:number, type:EventType)=>void,
+  subscribe: (id:number, type:string)=>void,
+  unsubscribe: (id:number, type:string)=>void,
   clear: (id:number)=>void,
   send: (id:number, command:string, variable?:string)=>void,
 }
