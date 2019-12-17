@@ -9,20 +9,19 @@ import { compose } from 'redux';
 import * as RemoteConsoles from '../../jsapi/remoteConsoles';
 
 import { consoles } from '../../jsapi/remoteConsoles';
-import { EventType } from 'att-websockets';
 
 import Responsive from 'react-responsive';
 
 export const allLogs:string[] = [
-    EventType.TraceLog,
-    EventType.DebugLog,
-    EventType.InfoLog,
-    EventType.WarnLog,
-    EventType.ErrorLog,
-    EventType.FatalLog,
+    'TraceLog',
+    'DebugLog',
+    'InfoLog',
+    'WarnLog',
+    'ErrorLog',
+    'FatalLog',
   ];
   
-const hiddenEvents:string[] = [EventType.OffLog, EventType.None];
+const hiddenEvents:string[] = ['OffLog', 'None'];
 
 const hiddenAndLogEvents:string[] = [...allLogs, ...hiddenEvents];
 
@@ -35,7 +34,7 @@ type Props = DispatchProps &
 
 function SubscriptionBar({id, subscribe, unsubscribe, subscriptions, events}:Props)
 {
-    const [newSubscribe, setSubscribe] = React.useState(EventType.None);
+    const [newSubscribe, setSubscribe] = React.useState('None');
     const [eventSearch, setEventSearch] = React.useState('');
 
     const logToggle = (label:string, events:string[]) => {
@@ -80,12 +79,12 @@ function SubscriptionBar({id, subscribe, unsubscribe, subscriptions, events}:Pro
     const logOptions = () =>
     {
       return <React.Fragment>
-        {logToggle('Trace', [EventType.TraceLog])}
-        {logToggle('Debug', [EventType.DebugLog])}
-        {logToggle('Info', [EventType.InfoLog])}
-        {logToggle('Warn', [EventType.WarnLog])}
-        {logToggle('Error', [EventType.ErrorLog])}
-        {logToggle('Fatal', [EventType.FatalLog])}
+        {logToggle('Trace', ['TraceLog'])}
+        {logToggle('Debug', ['DebugLog'])}
+        {logToggle('Info', ['InfoLog'])}
+        {logToggle('Warn', ['WarnLog'])}
+        {logToggle('Error', ['ErrorLog'])}
+        {logToggle('Fatal', ['FatalLog'])}
         {logToggle('All Logs', allLogs)}
       </React.Fragment>;
     }

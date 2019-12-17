@@ -2,10 +2,12 @@
   "compilerOptions": {
     "outDir": "./dist/",
     "noImplicitAny": true,
-    "module": "es6",
-    "target": "es5",
+    "module": "commonjs",
+    "esModuleInterop": true,
+    "target": "es6",
     "jsx": "react",
     "allowJs": true,
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "types": ["node", "react-window", "inquirer", "lodash", "memoizee", "react", "react-redux", "react-responsive", "react-router", "styled-components", "webpack", "ws", "react-virtualized-auto-sizer"]
   }
 }

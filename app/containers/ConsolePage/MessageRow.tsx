@@ -20,7 +20,6 @@ import {
   Header,
 } from 'semantic-ui-react';
 import { consoles } from '../../jsapi/remoteConsoles';
-import { EventType } from 'att-websockets';
 import TopBar from './topBar';
 import SubscriptionBar, { allLogs } from './SubscriptionBar';
 import CommandInput from './CommandInput';
@@ -150,7 +149,7 @@ type TableRow =
   id:number,
   type?:string,
   timeStamp?:Date,
-  eventType?:EventType,
+  eventType?:string,
   logger?:string,
   message?:string,
   color?:string,
@@ -172,11 +171,11 @@ function fitToTable(item:any) : TableRow
   result.eventType = item.eventType;
   result.logger = item.data.logger;
 
-  if (item.eventType == EventType.WarnLog)
+  if (item.eventType == 'WarnLog')
   {
     result.color = 'warning';
   }
-  else if (item.eventType == EventType.ErrorLog || item.eventType == EventType.FatalLog)
+  else if (item.eventType == 'ErrorLog' || item.eventType == 'FatalLog')
   {
     result.color = 'error';
   }

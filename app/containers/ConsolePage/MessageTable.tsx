@@ -27,7 +27,6 @@ import
     Header,
 } from 'semantic-ui-react';
 import { consoles } from '../../jsapi/remoteConsoles';
-import { EventType } from 'att-websockets';
 import TopBar from './topBar';
 import SubscriptionBar, { allLogs } from './SubscriptionBar';
 import CommandInput from './CommandInput';
@@ -255,11 +254,11 @@ function TableBodyRaw({
             return <List
                 ref={listRef}
                 height={listHeight} width={width}
-                itemKey={(index, data) => data[index].id}
+                itemKey={(index:any, data:any) => data[index].id}
                 itemData={messages}
                 itemCount={messages.length}
                 estimatedItemSize={rowHeight}
-                itemSize={(index) => selected == messages[index].id ? selectedHeight + 24 : rowHeight}
+                itemSize={(index:number) => selected == messages[index].id ? selectedHeight + 24 : rowHeight}
             >
                 {({ index, style }) =>
                     <MessageRow

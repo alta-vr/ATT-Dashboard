@@ -38,8 +38,6 @@ import {
   Header,
 } from 'semantic-ui-react';
 
-import { EventType } from 'att-websockets';
-
 import TopBar from './topBar';
 import SubscriptionBar, { allLogs } from './SubscriptionBar';
 import CommandInput from './CommandInput';

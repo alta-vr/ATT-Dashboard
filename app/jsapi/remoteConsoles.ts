@@ -12,7 +12,7 @@ import JsapiRedux from './ReduxAccess';
 
 import { Servers, Sessions } from 'alta-jsapi';
 
-import { Connection, EventType, Message, MessageType } from 'att-websockets';
+import { Connection, Message, MessageType } from 'att-websockets';
 
 const REMOTE_CONNECT_SUCCESS = 'app/jsapi/REMOTE_CONNECT_SUCCESS';
 const REMOTE_CONNECT_FAILURE = 'app/jsapi/REMOTE_CONNECT_FAILURE';
@@ -45,7 +45,7 @@ export type Server =
   id:number;
   status: Status,
   messages: any[],
-  subscriptions: EventType[],
+  subscriptions: string[],
   sent: {[id:number]:{command:string, variable:string|undefined, response?:any}},
   info: {[variable:string]:any},
   error?: any
