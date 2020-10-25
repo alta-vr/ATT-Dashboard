@@ -42,6 +42,7 @@ function* requestServersSaga() {
     yield take(SERVERS_REQUEST);
 
     try {
+        console.log(Servers);
       const servers = yield call(Servers.getConsoleServers);
 
       yield put(success(servers));
