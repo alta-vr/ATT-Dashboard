@@ -29,6 +29,7 @@ import { changeTab } from './actions';
 import LoginPage from '../LoginPage';
 import ServersPage from '../ServersPage';
 import ConsolePage from '../ConsolePage';
+import ReportPage from '../ReportPage';
 
 import { consoles } from '../../jsapi/remoteConsoles';
 
@@ -37,6 +38,7 @@ const emptyPage = () => <Segment>This is an empty tab!</Segment>;
 const pages = {
   account: () => <LoginPage />,
   servers: () => <ServersPage />,
+//   report: () => <ReportPage />
 };
 
 const BodyGrid = styled(Grid)`
@@ -90,6 +92,12 @@ export function Navigation({ navigation, changeTab, remoteConsoles }) {
         active={navigation.tab === 'servers'}
         onClick={handleClick}
       />
+      {/* <Menu.Item
+        id="report"
+        name="report"
+        active={navigation.tab === 'report'}
+        onClick={handleClick}
+      /> */}
       {Object.values(remoteConsoles.servers).map(ServerTab)}
     </Menu>
   }

@@ -231,7 +231,7 @@ function* connectSaga() {
 
     consoles[action.id] = remoteConsole;
 
-    console.log(`Calling connect to ${ip}:${port} with token ${token}`);
+    console.log(`Calling connect to ${ip}:${port} with token ${"[REDACTED]"}`);
 
     try
     {                    
