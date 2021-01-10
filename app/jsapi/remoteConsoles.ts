@@ -280,9 +280,13 @@ function* consoleSaga(id:number)
 
 function* receiveMessageSaga(id:number)
 {
+    var messageId = 0;
+
   while (true)
   {        
-    let message:Message = yield call(getNextMessage, id);
+    let message:any = yield call(getNextMessage, id);
+
+    message.id = messageId++;
 
     yield put(receivedMessage(id, message));
   }
