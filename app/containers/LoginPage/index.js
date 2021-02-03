@@ -21,7 +21,7 @@ import { useInjectReducer } from 'utils/injectReducer';
 
 import sha512 from 'crypto-js/sha512'
 
-import { Grid, Menu, Segment, Input, Form, Button, Message } from 'semantic-ui-react'
+import { Grid, Menu, Segment, Form, Button, Message, Icon } from 'semantic-ui-react'
 
 // import { Sessions } from 'alta-jsapi';
 import { setLoggedIn } from './actions';
@@ -56,6 +56,14 @@ export function LoginPage({sessions, login, logout })
 
   return (
     <Form error={!!loginError} loading={isProcessing} onSubmit={info => login(username, password)}>
+        <Message icon>
+        <Icon name='question' style={{verticalAlign:'unset'}}/>
+        <Message.Content>
+            <Message.Header>Did you know there's a new dashboard in the works?</Message.Header>
+            <p>If you get the chance to give it a go, let Joel know your thoughts!</p>
+            <a href='http://dash.townshiptale.com'>dash.townshiptale.com</a>
+        </Message.Content>
+        </Message>
       <Form.Field>
         <label>Username or Email</label>
         <input placeholder="Username" onChange={event => { setUsername(event.target.value); }}/>

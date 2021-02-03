@@ -198,7 +198,7 @@ function* connectSaga() {
     var port = action.port;
     var token = Sessions.getLocalTokens().identity_token;
 
-    if (!action.ip)
+    //if (!action.ip)
     {
       console.log("Getting connection details");
       
