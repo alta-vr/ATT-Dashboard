@@ -123,8 +123,39 @@ const reducer = (state: State, action: any, draft: State) =>
                 {
                     if (!!message.data.download)
                     {
-                        console.log("Downloading file from server: " + message.data.Result.downloadUrl);
-                        message.data.download();
+                        var fileNameSplit = message.data.Result.downloadUrl.split('/');
+                        var fileName = fileNameSplit[fileNameSplit.length - 1];
+
+                        console.log("Downloading file from server: " + fileName);
+
+                        message.data.download()
+                        .then((response:any) => response.blob())
+                        .then((blob:Blob) =>
+                        {
+                            let url = URL.createObjectURL(blob);
+
+                            let a = document.createElement('a');
+                            a.href = url;
+                            a.download = fileName;
+
+                            let clickHandler = () => 
+                            {
+                                setTimeout(() =>
+                                {
+                                    URL.revokeObjectURL(url);
+                                    a.removeEventListener('click', clickHandler);
+                                },
+                                150);
+                            }
+
+                            a.addEventListener('click', clickHandler);
+                            a.click();
+                        })
+                        .catch((e:any) =>
+                        {
+                            console.error("Error downloading");
+                            console.error(e);
+                        });
                     }
 
                     var sent = draft.servers[action.id].sent[message.commandId];
