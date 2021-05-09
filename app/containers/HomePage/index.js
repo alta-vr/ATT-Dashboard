@@ -16,7 +16,7 @@ export default function HomePage()
 {
   return (
     <Container>
-      <Header>ATT Console</Header>
+      <Header>ATT Dashboard</Header>
       <Divider/>
       <Navigation/>
     </Container>
